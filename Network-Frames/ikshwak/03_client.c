@@ -3,6 +3,23 @@
 #include <unistd.h>
 #include <arpa/inet.h>
 
+struct data{
+    char cmd[16];
+    int a;
+    int b;
+};
+
+struct data client_frame_request(char *cmd, int a, int b)
+{
+    struct data cdata;
+
+    cdata.a = a;
+    cdata.b = b;
+    strcpy(cdata.cmd, cmd);
+
+    return cdata;
+}
+
 int main() {
     int sock;
     struct sockaddr_in addr;
@@ -10,6 +27,8 @@ int main() {
     char cmd[] = "add";
     int a = 10;
     int b = 20;
+    struct data c_request;
+    int retval;
 
     sock = socket(AF_INET, SOCK_STREAM, 0);
 
@@ -19,10 +38,11 @@ int main() {
 
     connect(sock, (struct sockaddr*)&addr, sizeof(addr));
 
+    c_request = client_frame_request(cmd, a, b);
+    send(sock, &c_request, sizeof(c_request), 0);
 
-    send(sock, "add 10 20", 9, 0);
-
-    recv(sock, buffer, sizeof(buffer), 0);
+    retval = recv(sock, buffer, sizeof(buffer), 0);
+    buffer[retval] = '\0';
     printf("%s\n", buffer);
 
     close(sock);
