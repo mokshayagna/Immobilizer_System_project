@@ -1,0 +1,39 @@
+- Engine ECU
+response_received = False
+own_digest = AES128_algo(Random Number, Secret_Key)
+
+start_time = capture_time()
+while(1)
+    Generate Random Number
+    Send RAND_NUM to T_ECU
+    
+    nanosleep(200ms)
+
+    tecu_digest = recv(...,nowait)
+    if recevied_valid_response
+        response_received = True
+        break
+    
+    curr_time = capture_time()
+    
+    if (capture_time - start_time > 2)
+        response_received = False
+        break
+        
+    continue
+
+if response_received == True && own_digest == t_ecu_digest)
+    start_engine
+else
+    stop_engine
+    
+
+
+Experiments
+1. Experiment with recv with wait and no_wait
+    client
+        send_req
+        sleep(1)
+        retval = recv(no_wait)
+        print()
+

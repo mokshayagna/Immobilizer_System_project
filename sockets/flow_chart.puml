@@ -1,0 +1,33 @@
+@startuml
+title 🔐 Key Immobilizer System — Authentication Flowchart
+
+start
+
+:Ignition Turned ON;
+
+:Engine ECU wakes up;
+
+:Generate random challenge (nonce);
+
+:Send challenge to Transponder ECU;
+
+:Transponder ECU receives challenge;
+
+:Encrypt challenge using\nAES-128 shared secret;
+
+:Send encrypted response\nback to Engine ECU;
+
+:Engine ECU encrypts\nsame challenge locally\nusing stored AES-128 key;
+
+if (Do encrypted values match?) then (Yes)
+    :Authentication successful;
+    :Enable engine start;
+else (No)
+    :Authentication failed;
+    :Keep engine immobilized;
+endif
+
+:Check timeout (≤ 2 seconds);
+
+stop
+@enduml

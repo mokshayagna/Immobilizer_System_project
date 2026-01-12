@@ -1,0 +1,41 @@
+@startuml
+title 🔐 Key Immobilizer System — Authentication Sequence Flow
+
+actor Driver
+participant "Ignition Switch" as IGN
+participant "Engine ECU\n(Vehicle Side)" as ECU
+participant "Transponder ECU\n(Key Side)" as KEY
+
+== Ignition Phase ==
+Driver -> IGN : Turn Ignition ON
+IGN -> ECU : Ignition ON signal
+
+== Challenge Generation ==
+ECU -> ECU : Generate random nonce\n(cryptographically strong)
+
+== Challenge Distribution ==
+ECU -> KEY : Send Challenge (nonce)
+
+== Key Authentication ==
+KEY -> KEY : Encrypt nonce using\nAES-128 shared secret
+KEY -> ECU : Send Encrypted Response
+
+== Verification ==
+ECU -> ECU : Encrypt same nonce\nusing stored AES-128 key
+ECU -> ECU : Compare encrypted values
+
+alt Authentication Success
+    ECU -> ECU : Enable engine start
+    ECU -> IGN : Allow engine ignition
+else Authentication Failure / Timeout
+    ECU -> ECU : Keep engine immobilized
+    ECU -> IGN : Block engine start
+end
+
+note over ECU,KEY
+All steps must complete
+within 2 seconds
+(real-time constraint)
+end note
+
+@enduml

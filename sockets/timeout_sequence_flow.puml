@@ -1,0 +1,44 @@
+@startuml
+title 🔐 Immobilizer Authentication — Sequence Flow (Retry + Timeout)
+
+participant "Engine ECU" as ECU
+participant "Transponder ECU (T_ECU)" as T
+
+== Initialization ==
+ECU -> ECU : Generate Random Number (RAND_NUM)
+ECU -> ECU : authentication = FALSE
+ECU -> T : Send RAND_NUM
+ECU -> ECU : start_time = capture_time()
+ECU -> ECU : own_digest = AES128(RAND_NUM, Secret_Key)
+
+== Authentication Loop ==
+loop Retry until success or timeout
+    ECU -> ECU : nanosleep(200 ms)
+
+    ECU -> ECU : recv(tecu_digest, NO_WAIT)
+
+    alt Response received
+        ECU -> ECU : Validate response format
+        ECU -> ECU : authentication = TRUE
+        break
+    else No response yet
+        ECU -> ECU : curr_time = capture_time()
+        alt Timeout exceeded (> 2 sec)
+            ECU -> ECU : authentication = FALSE
+            break
+        else Still within time
+            ECU -> ECU : continue loop
+        end
+    end
+end
+
+== Final Verification ==
+ECU -> ECU : Compare own_digest vs tecu_digest
+
+alt authentication == TRUE AND digests match
+    ECU -> ECU : Start Engine
+else Authentication failed
+    ECU -> ECU : Stop / Immobilize Engine
+end
+
+@enduml
