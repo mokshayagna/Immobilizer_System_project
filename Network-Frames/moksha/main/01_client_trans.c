@@ -201,6 +201,7 @@ int main()
     }
 
 
+    printf("Closing connection.\n");
     close(sockfd);
 
     return 0;
